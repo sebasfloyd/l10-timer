@@ -8,8 +8,21 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface Section {
+  name: string;
+  emoji: string;
+  duration: number;
+  description: string;
+  color: string;
+}
+
+interface Participant {
+  name: string;
+  rating: string;
+}
+
 const L10Timer: React.FC = () => {
-  const sections = [
+  const sections: Section[] = [
     { 
       name: "Segue", 
       emoji: "👋",
@@ -61,19 +74,20 @@ const L10Timer: React.FC = () => {
     }
   ];
 
-  const [currentSection, setCurrentSection] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(sections[0].duration * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [participants, setParticipants] = useState([{ name: '', rating: '' }]);
-  const [showWarning, setShowWarning] = useState(false);
-  const [audioElement] = useState(new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVK/n77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHgU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlGt5fC0YBoGPJPY88p2KwUme8rx3I4+CRZiturqpVITCkmi4PK8aB8GM4nU8tGAMQYfcsLu45ZFDBFYr+ftrVoXCECY3PLEcSYELIHO8diJOQcZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaRw0PVK/n77BdGAg+ltrzxnUoBSh+zPPaizsIGGS57OihUBELTKXh8bllHgU1jdXzzn0vBSJ0xe/glEILElyx6OyrWRUIRJve8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEMLElyx6OyrWRUIRJzd8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEML'));
+  const [currentSection, setCurrentSection] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState<number>(sections[0].duration * 60);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [participants, setParticipants] = useState<Participant[]>([{ name: '', rating: '' }]);
+  const [showWarning, setShowWarning] = useState<boolean>(false);
+  const [audioElement] = useState<HTMLAudioElement>(() => new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbL1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVK/n77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHgU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlGt5fC0YBoGPJPY88p2KwUme8rx3I4+CRZiturqpVITCkmi4PK8aB8GM4nU8tGAMQYfcsLu45ZFDBFYr+ftrVoXCECY3PLEcSYELIHO8diJOQcZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaRw0PVK/n77BdGAg+ltrzxnUoBSh+zPPaizsIGGS57OihUBELTKXh8bllHgU1jdXzzn0vBSJ0xe/glEILElyx6OyrWRUIRJve8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEMLElyx6OyrWRUIRJzd8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEML'));
 
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
+    
     if (isRunning) {
       timer = setInterval(() => {
-        setTimeLeft((prevTime) => {
+        setTimeLeft((prevTime: number) => {
           if (prevTime <= 1) {
             audioElement.play();
             setIsRunning(false);
@@ -89,37 +103,40 @@ const L10Timer: React.FC = () => {
         });
       }, 1000);
     }
-    return () => clearInterval(timer);
-  }, [isRunning, audioElement]);
 
-  const formatTime = (seconds) => {
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isRunning, audioElement, showWarning]);
+
+  const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startTimer = () => setIsRunning(true);
-  const pauseTimer = () => setIsRunning(false);
-  const resetTimer = () => {
+  const startTimer = (): void => setIsRunning(true);
+  const pauseTimer = (): void => setIsRunning(false);
+  const resetTimer = (): void => {
     setIsRunning(false);
     setTimeLeft(sections[currentSection].duration * 60);
     setShowWarning(false);
   };
 
-  const goToSection = (index) => {
+  const goToSection = (index: number): void => {
     setCurrentSection(index);
     setTimeLeft(sections[index].duration * 60);
     setIsRunning(true);
     setShowWarning(false);
   };
 
-  const previousSection = () => {
+  const previousSection = (): void => {
     if (currentSection > 0) {
       goToSection(currentSection - 1);
     }
   };
 
-  const nextSection = () => {
+  const nextSection = (): void => {
     if (currentSection < sections.length - 1) {
       goToSection(currentSection + 1);
     } else {
@@ -128,25 +145,25 @@ const L10Timer: React.FC = () => {
     }
   };
 
-  const extendTime = (minutes) => {
+  const extendTime = (minutes: number): void => {
     setTimeLeft((prevTime) => prevTime + minutes * 60);
     setShowWarning(false);
   };
 
-  const addParticipant = () => {
-    setParticipants([...participants, { name: '', rating: '' }]);
+  const addParticipant = (): void => {
+    setParticipants((prev) => [...prev, { name: '', rating: '' }]);
   };
 
-  const updateParticipant = (index, field, value) => {
+  const updateParticipant = (index: number, field: keyof Participant, value: string): void => {
     const newParticipants = [...participants];
     newParticipants[index] = { ...newParticipants[index], [field]: value };
     setParticipants(newParticipants);
   };
 
-  const calculateAverageRating = () => {
+  const calculateAverageRating = (): string => {
     const validRatings = participants
       .map(p => parseInt(p.rating))
-      .filter(r => !isNaN(r));
+      .filter((r): r is number => !isNaN(r));
     return validRatings.length ? 
       (validRatings.reduce((a, b) => a + b, 0) / validRatings.length).toFixed(1) : 
       'N/A';
