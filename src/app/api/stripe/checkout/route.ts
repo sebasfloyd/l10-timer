@@ -1,15 +1,23 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing STRIPE_SECRET_KEY');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16', // Especificamos la versión de la API
+});
 
 export async function POST(req: Request) {
   try {
     const { priceId } = await req.json();
 
-    // Verificar qué tipo de precio es (subscription o one-time)
-    const price = await stripe.prices.retrieve(priceId);
-    
+    // Asegurarnos de que tenemos las variables de entorno necesarias
+    if (!process.env.NEXT_PUBLIC_URL) {
+      throw new Error('Missing NEXT_PUBLIC_URL');
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -18,7 +26,7 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      mode: price.type === 'recurring' ? 'subscription' : 'payment',
+      mode: 'subscription',
       success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/cancel`,
       allow_promotion_codes: true,
