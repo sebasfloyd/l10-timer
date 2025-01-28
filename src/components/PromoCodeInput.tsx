@@ -1,3 +1,4 @@
+// PromoCodeInput.tsx
 'use client';
 
 import { useState } from 'react';
@@ -26,18 +27,19 @@ export function PromoCodeInput({ onSuccess }: PromoCodeInputProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code }), // Asegúrate de que este formato es correcto
       });
 
       const data = await response.json();
 
-      if (data.valid) {
+      if (response.ok && data.valid) {
         setMessage(data.message);
         onSuccess();
       } else {
-        setError(data.message);
+        setError(data.message || 'Invalid promo code.');
       }
     } catch (err) {
+      console.error('Error validating promo code:', err);
       setError('Error validating code. Please try again.');
     } finally {
       setLoading(false);

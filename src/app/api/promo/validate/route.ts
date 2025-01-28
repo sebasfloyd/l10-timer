@@ -1,3 +1,4 @@
+// /app/api/promo/validate/route.ts
 import { NextResponse } from 'next/server';
 
 interface PromoCodes {
@@ -13,17 +14,33 @@ const VALID_CODES: PromoCodes = {
 
 export async function POST(req: Request) {
   try {
-    const { code } = await req.json() as { code: string };
+    // Intentar parsear el cuerpo de la solicitud
+    const body = await req.json() as { code: string };
+    console.log('Received body:', body);
+
+    const { code } = body;
+
+    if (typeof code !== 'string') {
+      console.warn('Invalid code type:', typeof code);
+      return NextResponse.json({ 
+        valid: false,
+        message: 'Invalid code format. Please provide a valid code.' 
+      }, { status: 400 });
+    }
+
     const normalizedCode = code.toUpperCase();
+    console.log('Normalized code:', normalizedCode);
 
     // Validar el código
     if (VALID_CODES[normalizedCode]) {
+      console.log('Valid promo code:', normalizedCode);
       return NextResponse.json({ 
         valid: true,
         message: 'Code accepted! You now have lifetime access.' 
       });
     }
 
+    console.warn('Invalid promo code:', normalizedCode);
     return NextResponse.json({ 
       valid: false,
       message: 'Invalid code. Please try again.' 
