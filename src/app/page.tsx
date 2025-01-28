@@ -7,10 +7,6 @@ const L10Timer = dynamic(() => import('@/components/L10Timer'), {
 })
 
 export default function Home() {
-  // Por ahora usaremos un estado local para simular el acceso
-  // Luego lo reemplazaremos con autenticación real
-  const hasAccess = false; // Esto luego vendrá de la verificación de pago
-
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-6xl mx-auto">
@@ -23,11 +19,7 @@ export default function Home() {
           </p>
         </header>
 
-        {hasAccess ? (
-          <L10Timer />
-        ) : (
-          <PricingSection />
-        )}
+        <PricingSection />
 
         <footer className="mt-8 text-center text-sm text-gray-500">
           <p>
