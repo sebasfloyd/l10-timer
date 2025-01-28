@@ -80,24 +80,25 @@ const L10Timer: React.FC = () => {
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [participants, setParticipants] = useState<Participant[]>([{ name: '', rating: '' }]);
   const [showWarning, setShowWarning] = useState<boolean>(false);
-  const [audioElement] = useState<HTMLAudioElement>(() => new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbL1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVK/n77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHgU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlGt5fC0YBoGPJPY88p2KwUme8rx3I4+CRZiturqpVITCkmi4PK8aB8GM4nU8tGAMQYfcsLu45ZFDBFYr+ftrVoXCECY3PLEcSYELIHO8diJOQcZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaRw0PVK/n77BdGAg+ltrzxnUoBSh+zPPaizsIGGS57OihUBELTKXh8bllHgU1jdXzzn0vBSJ0xe/glEILElyx6OyrWRUIRJve8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEMLElyx6OyrWRUIRJzd8sFuJAUug8/z1YU2BRxqvu7mnEoPDVGt5PC0YRoGPJPY88p3KgUme8rx3I4+CRVht+rqpVMSCkmi4PK8aCAFM4nT89GBMQYfccPu45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQcZZ7zs56BODwxPqOPxtmQcBjiP1/PMeS0FI3fH8N+RQAoUXrTp66hWEwlGnt/yv2wiBDCG0fPTgzQFHm/A7eSaSA0PVK/n77BdGAg+ltvyxnUoBSh+zPPaizsIGGS57OihUBELTKXh8blmHgU1jdT0zn0vBSF0xe/glEML'));
+
+  // Audio files
+  const warningAudio = new Audio('/12-seconds-warning.mp3'); // Warning at 12 seconds
+  const startAudio = new Audio('/start-sound.mp3'); // Sound when a section starts
 
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    
+
     if (isRunning) {
       timer = setInterval(() => {
         setTimeLeft((prevTime: number) => {
+          if (prevTime === 12) {
+            warningAudio.play(); // Play warning sound
+          }
           if (prevTime <= 1) {
-            audioElement.play();
             setIsRunning(false);
             setShowWarning(true);
             setTimeout(() => setShowWarning(false), 5000);
             return 0;
-          }
-          if (prevTime <= 30 && !showWarning) {
-            setShowWarning(true);
-            setTimeout(() => setShowWarning(false), 3000);
           }
           return prevTime - 1;
         });
@@ -107,7 +108,7 @@ const L10Timer: React.FC = () => {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isRunning, audioElement, showWarning]);
+  }, [isRunning, warningAudio]);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -115,8 +116,13 @@ const L10Timer: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startTimer = (): void => setIsRunning(true);
+  const startTimer = (): void => {
+    setIsRunning(true);
+    startAudio.play(); // Play start sound
+  };
+
   const pauseTimer = (): void => setIsRunning(false);
+
   const resetTimer = (): void => {
     setIsRunning(false);
     setTimeLeft(sections[currentSection].duration * 60);
@@ -127,6 +133,7 @@ const L10Timer: React.FC = () => {
     setCurrentSection(index);
     setTimeLeft(sections[index].duration * 60);
     setIsRunning(true);
+    startAudio.play(); // Play start sound when switching sections
     setShowWarning(false);
   };
 
