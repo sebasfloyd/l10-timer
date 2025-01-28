@@ -7,9 +7,13 @@ import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 import { PromoCodeInput } from './PromoCodeInput';
 
+interface PricingSectionProps {
+  onAccess: () => void;
+}
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export function PricingSection() {
+export function PricingSection({ onAccess }: PricingSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
 
@@ -29,7 +33,11 @@ export function PricingSection() {
       const { sessionId } = await response.json();
       const stripe = await stripePromise;
       
-      const { error } = await stripe!.redirectToCheckout({ sessionId });
+      if (!stripe) {
+        throw new Error('Stripe failed to load');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
       
       if (error) {
         console.error('Error:', error);
@@ -41,7 +49,11 @@ export function PricingSection() {
     }
   };
 
-  // Si ya tiene acceso (por promo code), mostrar mensaje de bienvenida
+  const handleAccessGranted = () => {
+    setHasAccess(true);
+    onAccess(); // Notificar al componente padre
+  };
+
   if (hasAccess) {
     return (
       <motion.div
@@ -59,12 +71,10 @@ export function PricingSection() {
     );
   }
 
-  // De lo contrario, mostramos la sección de precios + input de promo code
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h2 className="text-3xl font-bold text-center mb-8">Choose Your Plan</h2>
       
-      {/* Planes de suscripción */}
       <div className="grid md:grid-cols-2 gap-8">
         <Card className="relative overflow-hidden">
           <CardHeader>
@@ -81,7 +91,7 @@ export function PricingSection() {
               <li>✓ Cancel anytime</li>
             </ul>
             <Button 
-              onClick={() => handleSubscription(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!)}
+              onClick={() => handleSubscription('price_1QlyNZHMM0hLyRSjxgTmxaPy')}
               className="w-full"
               disabled={isLoading}
             >
@@ -109,7 +119,7 @@ export function PricingSection() {
               <li>✓ All future updates included</li>
             </ul>
             <Button 
-              onClick={() => handleSubscription(process.env.NEXT_PUBLIC_STRIPE_LIFETIME_PRICE_ID!)}
+              onClick={() => handleSubscription('price_1QlyNZHMM0hLyRSjpJFPxXmK')}
               className="w-full"
               disabled={isLoading}
             >
@@ -119,11 +129,10 @@ export function PricingSection() {
         </Card>
       </div>
 
-      {/* Input para promo code */}
       <Card className="max-w-md mx-auto p-6 mt-8">
         <CardContent>
           <h3 className="text-lg font-semibold mb-4">Have a promo code?</h3>
-          <PromoCodeInput onSuccess={() => setHasAccess(true)} />
+          <PromoCodeInput onSuccess={handleAccessGranted} />
         </CardContent>
       </Card>
     </div>

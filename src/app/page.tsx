@@ -1,12 +1,30 @@
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
-import { PricingSection } from '@/components/PricingSection'
+'use client';
+
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { PricingSection } from '@/components/PricingSection';
 
 const L10Timer = dynamic(() => import('@/components/L10Timer'), {
   ssr: false
-})
+});
 
 export default function Home() {
+  const [hasAccess, setHasAccess] = useState(false);
+
+  useEffect(() => {
+    // Verificar si hay acceso guardado en localStorage
+    const savedAccess = localStorage.getItem('l10timer_access');
+    if (savedAccess === 'true') {
+      setHasAccess(true);
+    }
+  }, []);
+
+  const handleAccess = () => {
+    localStorage.setItem('l10timer_access', 'true');
+    setHasAccess(true);
+  };
+
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-6xl mx-auto">
@@ -19,7 +37,11 @@ export default function Home() {
           </p>
         </header>
 
-        <PricingSection />
+        {hasAccess ? (
+          <L10Timer />
+        ) : (
+          <PricingSection onAccess={handleAccess} />
+        )}
 
         <footer className="mt-8 text-center text-sm text-gray-500">
           <p>
@@ -36,5 +58,5 @@ export default function Home() {
         </footer>
       </div>
     </main>
-  )
+  );
 }
