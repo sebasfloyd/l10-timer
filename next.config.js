@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // Permite cargar imágenes de estos dominios si usas <Image> de Next.js
   images: {
-    // Permite cargar imágenes de estos dominios
     domains: ['api.stripe.com', 'checkout.stripe.com'],
   },
 
@@ -13,19 +13,20 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           {
-            // CSP más completa para permitir fuentes, estilos y conexiones necesarias
+            // Politica de seguridad que habilita scripts externos e inline, estilos y fuentes de Google
             key: 'Content-Security-Policy',
             value: `
               default-src 'self';
-              script-src 'self';
+              script-src 'self' 'unsafe-inline' https://js.stripe.com;
               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
               font-src 'self' data: https://fonts.gstatic.com;
               connect-src 'self' https://api.stripe.com https://checkout.stripe.com;
+              frame-src 'self' https://js.stripe.com https://checkout.stripe.com;
               object-src 'none';
-            `.replace(/\s{2,}/g, ' '), // El .replace() compacta espacios y saltos
+            `.replace(/\s{2,}/g, ' '), // Compactar espacios
           },
           {
-            // Permissions-Policy vacío, sin directivas experimentales
+            // Si no requieres Permissions-Policy, déjalo vacío o elimínalo
             key: 'Permissions-Policy',
             value: '',
           },
