@@ -17,7 +17,7 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
 
-  const handleCheckout = async (priceId: string, mode: 'subscription' | 'payment') => {
+  const handleSubscription = async (priceId: string) => {
     try {
       setIsLoading(true);
       const response = await fetch('/api/stripe/checkout', {
@@ -27,32 +27,23 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
         },
         body: JSON.stringify({
           priceId,
-          mode, // Enviar el modo junto con el priceId
         }),
       });
       
-      const { sessionId, error } = await response.json();
-
-      if (error) {
-        console.error('Error:', error);
-        alert(error); // Opcional: Mostrar alerta al usuario
-        return;
-      }
-
+      const { sessionId } = await response.json();
       const stripe = await stripePromise;
       
       if (!stripe) {
         throw new Error('Stripe failed to load');
       }
 
-      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+      const { error } = await stripe.redirectToCheckout({ sessionId });
       
-      if (stripeError) {
-        console.error('Stripe Error:', stripeError);
+      if (error) {
+        console.error('Error:', error);
       }
     } catch (err) {
       console.error('Error:', err);
-      alert('An unexpected error occurred. Please try again.'); // Opcional: Mostrar alerta al usuario
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +76,6 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
       <h2 className="text-3xl font-bold text-center mb-8">Choose Your Plan</h2>
       
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Plan Mensual */}
         <Card className="relative overflow-hidden">
           <CardHeader>
             <CardTitle>Monthly Plan</CardTitle>
@@ -101,7 +91,7 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
               <li>✓ Cancel anytime</li>
             </ul>
             <Button 
-              onClick={() => handleCheckout('price_1QlyNZHMM0hLyRSjxgTmxaPy', 'subscription')}
+              onClick={() => handleSubscription('price_1QlyNZHMM0hLyRSjxgTmxaPy')}
               className="w-full"
               disabled={isLoading}
             >
@@ -110,7 +100,6 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
           </CardContent>
         </Card>
 
-        {/* Acceso de por Vida */}
         <Card className="relative overflow-hidden">
           <div className="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl text-sm">
             Best Value
@@ -130,7 +119,7 @@ export function PricingSection({ onAccess }: PricingSectionProps) {
               <li>✓ All future updates included</li>
             </ul>
             <Button 
-              onClick={() => handleCheckout('price_1QlyNZHMM0hLyRSjpJFPxXmK', 'payment')}
+              onClick={() => handleSubscription('price_1QlyNZHMM0hLyRSjpJFPxXmK')}
               className="w-full"
               disabled={isLoading}
             >
