@@ -8,6 +8,7 @@ interface PromoCodes {
 // Lista de códigos válidos (en producción esto debería estar en una base de datos)
 const VALID_CODES: PromoCodes = {
   'RUPTIVEDEMO': true,
+  'CATIF_FREE': true,
   'FRIENDPASS': true,
   'BETAUSER': true
 };
